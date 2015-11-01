@@ -224,8 +224,8 @@ class top_block(gr.top_block):
 
 		if source == 'hackrf':
 			self.source = source_hackrf(args.tuned_frequency, args.if_rate)
-        elif source == 'bladerf':
-            self.source = source_bladerf(args.tuned_frequency, args.if_rate)
+		elif source == 'bladerf':
+			self.source = source_bladerf(args.tuned_frequency, args.if_rate)
 		elif source == 'rtlsdr':
 			self.source = source_rtlsdr(args.tuned_frequency, args.if_rate)
 		elif source == 'file':
