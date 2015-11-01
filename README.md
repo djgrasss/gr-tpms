@@ -135,6 +135,10 @@ Or using a HackRF:
 
     tpms_rx --source hackrf --if-rate 400000 --tuned-frequency 315000000
 
+Or using a bladeRF:
+
+    tpms_rx --source bladerf --if-rate 400000 --tuned-frequency 315000000
+
 To detect and decode from a file:
 
     tpms_rx --if-rate 400000 --file <filename of complex<float32> file sampled at 400kHz>

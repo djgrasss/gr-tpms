@@ -38,7 +38,7 @@ import tpms
 
 from tpms.packet_check import packet_decode
 
-from tpms.source import source_hackrf, source_rtlsdr, source_file
+from tpms.source import source_hackrf, source_bladerf, source_rtlsdr, source_file
 from tpms.ask import ask_channel_filter
 from tpms.fsk import fsk_center_tracking, fsk_demodulator
 from tpms.decode import clock_recovery
@@ -224,6 +224,8 @@ class top_block(gr.top_block):
 
 		if source == 'hackrf':
 			self.source = source_hackrf(args.tuned_frequency, args.if_rate)
+        elif source == 'bladerf':
+            self.source = source_bladerf(args.tuned_frequency, args.if_rate)
 		elif source == 'rtlsdr':
 			self.source = source_rtlsdr(args.tuned_frequency, args.if_rate)
 		elif source == 'file':
@@ -249,7 +251,7 @@ class top_block(gr.top_block):
 def main():
 	parser = ArgumentParser()
 	parser.add_argument('-f', '--file', type=str, default=None, help="Input file path for offline processing")
-	parser.add_argument('-s', '--source', type=str, default=None, help="Source for live baseband data (hackrf, rtlsdr)")
+	parser.add_argument('-s', '--source', type=str, default=None, help="Source for live baseband data (hackrf, bladerf, rtlsdr)")
 	parser.add_argument('-b', '--bursts', action="store_true", help="Save bursts of significant energy to separate files")
 	parser.add_argument('-r', '--raw', action="store_true", help="Include raw (undecoded) bits in output")
 	parser.add_argument('-i', '--if-rate', type=float, default=None, help="IF sampling rate")

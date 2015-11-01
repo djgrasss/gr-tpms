@@ -68,6 +68,50 @@ class source_hackrf(gr.hier_block2):
 
 		self.connect(self.source, self.if_filter, self)
 
+class source_bladerf(gr.hier_block2):
+	def __init__(self, target_frequency, if_sampling_rate):
+		super(source_bladerf, self).__init__(
+			"source_bladerf",
+			gr.io_signature(0, 0, 0),
+			gr.io_signature(1, 1, gr.sizeof_gr_complex*1),
+		)
+
+		import osmosdr
+
+		rf_sampling_rate = 10000000
+		baseband_bandwidth = 1750000
+		offset_frequency = 400000		# Keep well below roll-off of baseband filter.
+		rf_gain = 14			# Gains set assuming a front-end filter keeps out-of-band noise down.
+		if_gain = 40
+		bb_gain = 24
+		if_filter_attenuation = 60
+
+		rf_decimation, rf_decimation_remainder = divmod(rf_sampling_rate, if_sampling_rate)
+		if rf_decimation_remainder != 0:
+			raise RuntimeError('RF decimation must be an integer')
+		rf_decimation = int(round(rf_decimation))
+		tuning_frequency = target_frequency - offset_frequency
+
+		self.source = osmosdr.source(args="numchan=1 bladerf=0")
+		self.source.set_sample_rate(rf_sampling_rate)
+		self.source.set_center_freq(tuning_frequency, 0)
+		self.source.set_freq_corr(0, 0)
+		self.source.set_dc_offset_mode(0, 0)
+		self.source.set_iq_balance_mode(0, 0)
+		self.source.set_gain_mode(False, 0)
+		self.source.set_gain(rf_gain, 0)
+		self.source.set_if_gain(if_gain, 0)
+		self.source.set_bb_gain(bb_gain, 0)
+		self.source.set_antenna("", 0)
+		self.source.set_bandwidth(baseband_bandwidth, 0)
+
+		if_taps = firdes.low_pass_2(1.0, rf_sampling_rate, if_sampling_rate*0.45, if_sampling_rate*0.1, if_filter_attenuation)
+		self.if_filter = filter.freq_xlating_fir_filter_ccc(rf_decimation, (if_taps), offset_frequency, rf_sampling_rate)
+		#self.if_filter.set_min_output_buffer(1048576)
+
+		self.connect(self.source, self.if_filter, self)
+
+
 class source_rtlsdr(gr.hier_block2):
 	def __init__(self, target_frequency, if_sampling_rate):
 		super(source_rtlsdr, self).__init__(
